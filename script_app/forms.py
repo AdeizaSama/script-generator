@@ -21,19 +21,16 @@ class HookForm(forms.Form):
 
 
 class ScriptForm(forms.Form):
-    HOOK_CHOICES = [
-        ('Apple', 'Apple'),
-        ('Banana', 'Banana'),
-        ('Cherry', 'Cherry'),
-        ('Date', 'Date'),
-        ('Elderberry', 'Elderberry'),
-    ]
-
     LENGTH_CHOICES = [
         ('30-60 words', '30-60 words'),
         ('60-120 words', '60-120 words'),
         ('120-240 words', '120-240 words'),
     ]
 
-    hook = forms.ChoiceField(choices=HOOK_CHOICES, label='Hook')
+    hook = forms.ChoiceField(choices=[], label='Hook')
     script_length = forms.ChoiceField(choices=LENGTH_CHOICES, label='Script Length')
+
+    def __init__(self, *args, **kwargs):
+        hook_choices = kwargs.pop('hook_choices', [])
+        super(ScriptForm, self).__init__(*args, **kwargs)
+        self.fields['hook'].choices = hook_choices

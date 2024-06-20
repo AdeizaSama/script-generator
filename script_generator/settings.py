@@ -125,7 +125,7 @@ LOGGING = {
         'script_app': {
             'handlers': ['console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
     },
 }
