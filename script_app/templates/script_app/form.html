@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Script Generator</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'script_app/styles.css' %}">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Script Generator</h1>
+        <form method="post" class="form">
+            {% csrf_token %}
+            <h2>Hook Creation</h2>
+            <div class="form-group">
+                {{ hook_form.product_name.label_tag }}<br>
+                {{ hook_form.product_name }}
+            </div>
+            <div class="form-group">
+                {{ hook_form.target_audience.label_tag }}<br>
+                {{ hook_form.target_audience }}
+            </div>
+            <div class="form-group">
+                {{ hook_form.narrator.label_tag }}<br>
+                {{ hook_form.narrator }}
+            </div>
+            <div class="form-group">
+                {{ hook_form.core_message.label_tag }}<br>
+                {{ hook_form.core_message }}
+            </div>
+            <div class="form-group">
+                {{ hook_form.additional_creator_context.label_tag }}<br>
+                {{ hook_form.additional_creator_context }}
+            </div>
+            <button type="submit" name="generate_hook">Generate Hook</button>
+
+            <h2>Script Creation</h2>
+            <div class="form-group">
+                {{ script_form.hook.label_tag }}<br>
+                {{ script_form.hook }}
+            </div>
+            <div class="form-group">
+                {{ script_form.script_length.label_tag }}<br>
+                {{ script_form.script_length }}
+            </div>
+            <button type="submit" name="generate_script">Generate Script</button>
+        </form>
+
+        {% if script_text %}
+            <div class="response-text">
+                <h2>Script:</h2>
+                <textarea readonly rows="10" cols="50">{{ script_text }}</textarea>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
