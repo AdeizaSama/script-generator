@@ -1,0 +1,18 @@
+{
+  "builds": [
+    {
+      "src": "script_generator/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "script_generator/wsgi.py"
+    }
+  ]
+}
