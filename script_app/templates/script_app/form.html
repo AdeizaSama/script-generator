@@ -1,9 +1,79 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Script Generator</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'script_app/styles.css' %}">
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: #555;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #999;
+        }
+
+        .response-text {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        hr {
+            border: 1px solid white;
+            width: 80%;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
     <div class="form-container">
@@ -32,7 +102,7 @@
                 {{ hook_form.additional_creator_context }}
             </div>
             <button type="submit" name="generate_hook">Generate Hook</button>
-
+          <hr>
             <h2>Script Creation</h2>
             <div class="form-group">
                 {{ script_form.hook.label_tag }}<br>
