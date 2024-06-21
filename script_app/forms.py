@@ -1,4 +1,31 @@
 from django import forms
+from django.forms.widgets import CheckboxSelectMultiple
+from .model.teachtap_core_inputs import PROBLEMS_INFO, USP_INFO
+
+
+class MessageForm(forms.Form):
+    PRODUCT_CHOICES = [
+        ('TeachTap', 'TeachTap'),
+    ]
+    AUDIENCE_CHOICES = [
+        ('Parent', 'Parent'),
+        ('Student', 'Student')
+    ]
+    PROBLEMS_CHOICES = [(key, value['title']) for key, value in PROBLEMS_INFO.items()]
+    USP_CHOICES = [(key, value['title']) for key, value in USP_INFO.items()]
+
+    product = forms.ChoiceField(choices=PRODUCT_CHOICES, label='Product')
+    audience = forms.ChoiceField(choices=AUDIENCE_CHOICES, label='Audience')
+    problem = forms.MultipleChoiceField(
+        choices=PROBLEMS_CHOICES,
+        label='Problem',
+        widget=CheckboxSelectMultiple
+    )
+    usp = forms.MultipleChoiceField(
+        choices=USP_CHOICES,
+        label='Unique Selling Point',
+        widget=CheckboxSelectMultiple
+    )
 
 
 class HookForm(forms.Form):
@@ -27,10 +54,10 @@ class ScriptForm(forms.Form):
         ('120-240 words', '120-240 words'),
     ]
 
-    hook = forms.ChoiceField(choices=[], label='Hook')
+    message = forms.ChoiceField(choices=[], label='Messaging')
     script_length = forms.ChoiceField(choices=LENGTH_CHOICES, label='Script Length')
 
     def __init__(self, *args, **kwargs):
-        hook_choices = kwargs.pop('hook_choices', [])
+        message_choices = kwargs.pop('message_choices', [])
         super(ScriptForm, self).__init__(*args, **kwargs)
-        self.fields['hook'].choices = hook_choices
+        self.fields['message'].choices = message_choices

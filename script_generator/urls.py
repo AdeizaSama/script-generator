@@ -19,5 +19,5 @@ from script_app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.hook_creation_view, name='hook_creation_view'),
+    path('', views.message_creation_view, name='message_creation_view'),
 ]

@@ -1,29 +1,28 @@
 from django.shortcuts import render
-from .forms import HookForm, ScriptForm
-from .services.llm_service import generate_hooks
+from .forms import ScriptForm, MessageForm
+from .services.llm_service import generate_messages
 import logging
 
 # Set up logger
 logger = logging.getLogger(__name__)
 
 
-def hook_creation_view(request):
-    hook_form = HookForm()
+def message_creation_view(request):
+    message_form = MessageForm()
     script_form = ScriptForm()
-    hooks = []
+    messages = []
 
-    if 'generate_hook' in request.POST:
-        hook_form = HookForm(request.POST)
-        if hook_form.is_valid():
-            product_name = hook_form.cleaned_data['product_name']
-            target_audience = hook_form.cleaned_data['target_audience']
-            narrator = hook_form.cleaned_data['narrator']
-            core_message = hook_form.cleaned_data['core_message']
-            additional_context = hook_form.cleaned_data['additional_creator_context']
+    if 'generate_message' in request.POST:
+        message_form = MessageForm(request.POST)
+        if message_form.is_valid():
+            product = message_form.cleaned_data['product']
+            audience = message_form.cleaned_data['audience']
+            problems = message_form.cleaned_data['problem']
+            usps = message_form.cleaned_data['usp']
 
-            # Generate hooks
-            hooks = generate_hooks(product_name, target_audience, narrator, core_message, additional_context)
-            script_form = ScriptForm(hook_choices=[(hook, hook) for hook in hooks])
+            # Generate messages
+            messages = generate_messages(product, audience, problems, usps)
+            script_form = ScriptForm(message_choices=[(message, message) for message in messages])
 
     elif 'generate_script' in request.POST:
         script_form = ScriptForm(request.POST)
@@ -33,15 +32,15 @@ def hook_creation_view(request):
             logger.info(f"Script form data: {script_form.cleaned_data}")
             script_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
             return render(request, 'script_app/form.html', {
-                'hook_form': hook_form,
+                'message_form': message_form,
                 'script_form': script_form,
-                'hooks': hooks,
+                'messages': messages,
                 'script_text': script_text,
             })
 
     return render(request, 'script_app/form.html', {
-        'hook_form': hook_form,
+        'message_form': message_form,
         'script_form': script_form,
-        'hooks': hooks,
+        'messages': messages,
         'script_text': '',
     })

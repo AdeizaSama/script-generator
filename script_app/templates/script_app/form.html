@@ -1,126 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Script Generator</title>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+{% extends "script_app/base.html" %}
+{% load form_tags %}
 
-        .form-container {
-            background-color: #555;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 80%;
-            max-width: 600px;
-            text-align: center;
-            margin-top: auto;
-        }
+{% block title %}Script Generator{% endblock %}
 
-        .form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+{% block content %}
+<div class="form-container mt-5">
+    <h1 class="mb-4">Script Generator</h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <h2>Core Message Creation</h2>
+        <div class="form-group">
+            <h3>{{ message_form.product.label_tag }}</h3><br>
+            {{ message_form.product|add_class:"form-control" }}<br>
+        </div>
+        <div class="form-group">
+            <h3>{{ message_form.audience.label_tag }}</h3><br>
+            {{ message_form.audience|add_class:"form-control" }}<br>
+        </div>
+        <div class="form-group">
+            <h3>{{ message_form.problem.label_tag }}</h3><br>
+            {{ message_form.problem }}<br>
+        </div>
+        <div class="form-group">
+            <h3>{{ message_form.usp.label_tag }}</h3><br>
+            {{ message_form.usp }}<br>
+        </div>
+        <button type="submit" name="generate_message" class="btn btn-primary">Generate Messaging</button>
 
-        .form-group {
-            margin-bottom: 15px;
-            width: 100%;
-            text-align: left;
-        }
+        <hr> <!-- Horizontal line between sections -->
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
+        <h2>Script Creation</h2>
+        <div class="form-group">
+            {{ script_form.message.label_tag }}<br>
+            {{ script_form.message|add_class:"form-control" }}
+        </div>
+        <div class="form-group">
+            {{ script_form.script_length.label_tag }}<br>
+            {{ script_form.script_length|add_class:"form-control" }}
+        </div>
+        <button type="submit" name="generate_script" class="btn btn-primary">Generate Script</button>
+    </form>
 
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #999;
-        }
-
-        .response-text {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        hr {
-            border: 1px solid white;
-            width: 80%;
-            margin: 20px 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="form-container">
-        <h1>Script Generator</h1>
-        <form method="post" class="form">
-            {% csrf_token %}
-            <h2>Hook Creation</h2>
-            <div class="form-group">
-                {{ hook_form.product_name.label_tag }}<br>
-                {{ hook_form.product_name }}
-            </div>
-            <div class="form-group">
-                {{ hook_form.target_audience.label_tag }}<br>
-                {{ hook_form.target_audience }}
-            </div>
-            <div class="form-group">
-                {{ hook_form.narrator.label_tag }}<br>
-                {{ hook_form.narrator }}
-            </div>
-            <div class="form-group">
-                {{ hook_form.core_message.label_tag }}<br>
-                {{ hook_form.core_message }}
-            </div>
-            <div class="form-group">
-                {{ hook_form.additional_creator_context.label_tag }}<br>
-                {{ hook_form.additional_creator_context }}
-            </div>
-            <button type="submit" name="generate_hook">Generate Hook</button>
-          <hr>
-            <h2>Script Creation</h2>
-            <div class="form-group">
-                {{ script_form.hook.label_tag }}<br>
-                {{ script_form.hook }}
-            </div>
-            <div class="form-group">
-                {{ script_form.script_length.label_tag }}<br>
-                {{ script_form.script_length }}
-            </div>
-            <button type="submit" name="generate_script">Generate Script</button>
-        </form>
-
-        {% if script_text %}
-            <div class="response-text">
-                <h2>Script:</h2>
-                <textarea readonly rows="10" cols="50">{{ script_text }}</textarea>
-            </div>
-        {% endif %}
-    </div>
-</body>
-</html>
+    {% if script_text %}
+        <div class="response-text mt-4">
+            <h2>Script:</h2>
+            <textarea readonly rows="10" cols="50" class="form-control">{{ script_text }}</textarea>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
