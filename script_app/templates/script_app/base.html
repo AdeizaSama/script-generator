@@ -8,8 +8,16 @@
 {#    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">#}
     <link href="https://bootswatch.com/5/slate/bootstrap.min.css" rel="stylesheet">
     <style>
-      .btn-primary {
-          margin-top: 10px;
+      h1 {
+        text-align: center;
+        color: white;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
       }
       .checkbox-inline {
           display: inline-block;
@@ -18,6 +26,35 @@
       .checkbox-group {
           display: flex;
           flex-direction: column;
+      }
+      .step {
+          display: none;
+      }
+      .step.active {
+          display: block;
+      }
+      .form-container {
+          background: linear-gradient(15deg, #000, #333);
+          border-radius: 15px;
+          padding: 20px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .buttons {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .buttons button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #333;
+        color: white;
+        margin: 5px;
+      }
+      .buttons button:hover {
+        background-color: #555;
       }
     </style>
 </head>

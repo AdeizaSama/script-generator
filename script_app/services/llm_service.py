@@ -3,13 +3,25 @@ import json
 import logging
 import anthropic
 import os
+from random import sample
+from script_app.model.teachtap_core_inputs import AUDIENCE_INFO, PROBLEMS_INFO, USP_INFO, EXAMPLE_MESSAGES
+from script_app.model.prompts import get_messaging_prompt
 
-from script_app.model.prompts import get_messaging_prompt, get_hooks_prompt
-
-# Set up logger
 logger = logging.getLogger(__name__)
-logger.info(f"Claude API Key: {os.getenv('CLAUDE_API_KEY')}")
 client = anthropic.Anthropic(api_key=os.getenv('CLAUDE_API_KEY'))
+
+
+def get_prompt_inputs(product, audience, problems, usps):
+    product_info = f"TeachTap is an educational mobile app that uses GenAI to bring historical characters back to life as the teachers, in the style of Tiktok. It is designed to help high school students get top grades in their upcoming exams by providing a fun, motivating and efficient way of learning."
+    audience_info = AUDIENCE_INFO[audience]
+    problems_info = "\n\n--".join([PROBLEMS_INFO[problem]['description'] for problem in problems])
+    usp_info = "\n\n--".join([USP_INFO[usp]['description'] for usp in usps])
+    example_messages = "\n\n--".join(
+        [message['description'] for message in sample(
+            [msg for msg in EXAMPLE_MESSAGES if msg['target_audience'] == audience], 3
+        )]
+    )
+    return product_info, audience_info, problems_info, usp_info, example_messages
 
 
 def make_llm_request(prompt, tools, max_tokens=1024):
@@ -35,8 +47,9 @@ def make_llm_request(prompt, tools, max_tokens=1024):
         return None
 
 
-def generate_messages(product, audience, problems, usps):
-    prompt = get_messaging_prompt(product, audience, problems, usps)
+def generate_messages_service(product, audience, problems, usps, examples_focus):
+    product_info, audience_info, problems_info, usp_info, example_messages = get_prompt_inputs(product, audience, problems, usps, examples_focus)
+    prompt = get_messaging_prompt(product_info, audience_info, problems_info, usp_info, example_messages)
     logger.info(f"Prompt: {prompt}")
     tools = [
         {
@@ -62,8 +75,9 @@ def generate_messages(product, audience, problems, usps):
     messages = completion['messages']
     return messages if messages else ["Failed to generate messages. Please try again."]
 
+
 def generate_hooks(product_name, target_audience, narrator, core_message, additional_context):
-    prompt = build_hooks_prompt(product_name, target_audience, narrator, core_message, additional_context)
+    prompt = get_hooks_prompt(product_name, target_audience, narrator, core_message, additional_context)
     logger.info(f"Prompt: {prompt}")
     tools = [
         {

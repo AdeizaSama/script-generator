@@ -1,51 +1,117 @@
 {% extends "script_app/base.html" %}
 {% load form_tags %}
-
 {% block title %}Script Generator{% endblock %}
 
 {% block content %}
-<div class="form-container mt-5">
-    <h1 class="mb-4">Script Generator</h1>
-    <form method="post" class="form">
-        {% csrf_token %}
+  <h1 class="mb-4">Script Generator</h1>
+  <div class="form-container mt-5">
+    <div id="sliderForm">
+      <div class="step active">
         <h2>Core Message Creation</h2>
-        <div class="form-group">
-            <h3>{{ message_form.product.label_tag }}</h3><br>
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group" disabled>
+            {{ message_form.product.label_tag }}<br>
             {{ message_form.product|add_class:"form-control" }}<br>
-        </div>
-        <div class="form-group">
-            <h3>{{ message_form.audience.label_tag }}</h3><br>
+          </div>
+          <div class="form-group">
+            {{ message_form.audience.label_tag }}<br>
             {{ message_form.audience|add_class:"form-control" }}<br>
-        </div>
+          </div>
+          <div class="buttons">
+            <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)" disabled>Back</button>
+            <button type="button" class="btn btn-primary btn-next" onclick="nextPrev(1)">Next</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="step">
+      <h2>Select Problems</h2>
+      <form method="post">
+        {% csrf_token %}
         <div class="form-group">
-            <h3>{{ message_form.problem.label_tag }}</h3><br>
-            {{ message_form.problem }}<br>
+          {{ message_form.problem.label_tag }}<br>
+          <div class="checkbox-group">
+            {{ message_form.problem }}
+          </div>
         </div>
+        <div class="buttons">
+          <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
+          <button type="button" class="btn btn-primary btn-next" onclick="nextPrev(1)">Next</button>
+        </div>
+      </form>
+    </div>
+    <div class="step">
+      <h2>Select Unique Selling Points</h2>
+      <form method="post" id="finalStep">
+        {% csrf_token %}
         <div class="form-group">
-            <h3>{{ message_form.usp.label_tag }}</h3><br>
-            {{ message_form.usp }}<br>
+          {{ message_form.usp.label_tag }}<br>
+          <div class="checkbox-group">
+            {{ message_form.usp }}
+          </div>
         </div>
-        <button type="submit" name="generate_message" class="btn btn-primary">Generate Messaging</button>
+        <div class="buttons">
+          <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
+          <button type="submit" class="btn btn-primary btn-next">Submit</button>
+        </div>
+      </form>
+    </div>
+    <div class="step">
+      <h2>Generated Messages</h2>
+      <textarea id="generatedMessages" class="form-control" readonly rows="10"></textarea>
+    </div>
+  </div>
 
-        <hr> <!-- Horizontal line between sections -->
+  <script>
+    let currentStep = 0;
+    const steps = document.querySelectorAll(".step");
 
-        <h2>Script Creation</h2>
-        <div class="form-group">
-            {{ script_form.message.label_tag }}<br>
-            {{ script_form.message|add_class:"form-control" }}
-        </div>
-        <div class="form-group">
-            {{ script_form.script_length.label_tag }}<br>
-            {{ script_form.script_length|add_class:"form-control" }}
-        </div>
-        <button type="submit" name="generate_script" class="btn btn-primary">Generate Script</button>
-    </form>
+    function showStep(n) {
+      steps[currentStep].classList.remove("active");
+      currentStep += n;
 
-    {% if script_text %}
-        <div class="response-text mt-4">
-            <h2>Script:</h2>
-            <textarea readonly rows="10" cols="50" class="form-control">{{ script_text }}</textarea>
-        </div>
-    {% endif %}
-</div>
+      if (currentStep >= steps.length) {
+        return false;
+      }
+
+      steps[currentStep].classList.add("active");
+    }
+
+    showStep(0);
+
+    function nextPrev(n) {
+      showStep(n);
+    }
+
+    document.getElementById("finalStep").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const nextBtn = steps[currentStep].querySelector(".btn-next");
+      nextBtn.disabled = true;
+      nextBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+      const formData = new FormData(document.getElementById("finalStep"));
+      console.log(`I found the form data: ${formData.get("usp")}`);
+
+      fetch("{% url 'generate_messages' %}", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}"
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        nextBtn.disabled = false;
+        nextBtn.innerHTML = "Submit";
+
+        if (data.messages) {
+          document.getElementById("generatedMessages").value = data.messages.join("\n\n--");
+          showStep(1);
+        } else {
+          alert("Failed to generate messages. Please try again.");
+        }
+      });
+    });
+  </script>
 {% endblock %}
