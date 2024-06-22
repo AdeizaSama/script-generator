@@ -8,8 +8,8 @@ class MessageForm(forms.Form):
         ('TeachTap', 'TeachTap'),
     ]
     AUDIENCE_CHOICES = [
-        ('Parent', 'Parent'),
-        ('Student', 'Student')
+        ('Parents', 'Parents'),
+        ('Students', 'Students')
     ]
     PROBLEMS_CHOICES = [(key, value['title']) for key, value in PROBLEMS_INFO.items()]
     USP_CHOICES = [(key, value['title']) for key, value in USP_INFO.items()]

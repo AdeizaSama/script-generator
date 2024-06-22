@@ -33,7 +33,7 @@ def generate_messages_view(request):
             logger.info(f"USPs: {usps}")
 
             # Generate messages
-            messages = generate_messages_service(product, audience, problems, usps)
+            messages = generate_messages_service(product, audience, problems, usps, examples_focus=None)
             return JsonResponse({"messages": messages})
         else:
             return JsonResponse({"error": "Invalid form data"}, status=400)

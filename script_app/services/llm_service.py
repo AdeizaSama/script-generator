@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 client = anthropic.Anthropic(api_key=os.getenv('CLAUDE_API_KEY'))
 
 
-def get_prompt_inputs(product, audience, problems, usps):
+def get_prompt_inputs(product, audience, problems, usps, examples_focus):
     product_info = f"TeachTap is an educational mobile app that uses GenAI to bring historical characters back to life as the teachers, in the style of Tiktok. It is designed to help high school students get top grades in their upcoming exams by providing a fun, motivating and efficient way of learning."
     audience_info = AUDIENCE_INFO[audience]
     problems_info = "\n\n--".join([PROBLEMS_INFO[problem]['description'] for problem in problems])
@@ -50,7 +50,7 @@ def make_llm_request(prompt, tools, max_tokens=1024):
 def generate_messages_service(product, audience, problems, usps, examples_focus):
     product_info, audience_info, problems_info, usp_info, example_messages = get_prompt_inputs(product, audience, problems, usps, examples_focus)
     prompt = get_messaging_prompt(product_info, audience_info, problems_info, usp_info, example_messages)
-    logger.info(f"Prompt: {prompt}")
+    # logger.info(f"Prompt: {prompt}")
     tools = [
         {
             "name": "generate_messages",
@@ -72,33 +72,5 @@ def generate_messages_service(product, audience, problems, usps, examples_focus)
     ]
 
     completion = make_llm_request(prompt, tools)
-    messages = completion['messages']
+    messages = completion.input['messages']
     return messages if messages else ["Failed to generate messages. Please try again."]
-
-
-def generate_hooks(product_name, target_audience, narrator, core_message, additional_context):
-    prompt = get_hooks_prompt(product_name, target_audience, narrator, core_message, additional_context)
-    logger.info(f"Prompt: {prompt}")
-    tools = [
-        {
-            "name": "generate_hooks",
-            "description": "Generate five short hooks for for the start of an ad script.",
-            "input_schema": {
-                "type": "object",
-                "properties": {
-                    "hooks": {
-                        "type": "array",
-                        "description": "list of generated ad hook options",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                },
-                "required": ["hooks"]
-            }
-        }
-    ]
-
-    completion = make_llm_request(prompt, tools)
-    hooks = completion['hooks']
-    return hooks if hooks else ["Failed to generate hooks. Please try again."]

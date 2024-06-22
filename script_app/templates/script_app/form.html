@@ -8,9 +8,9 @@
     <div id="sliderForm">
       <div class="step active">
         <h2>Core Message Creation</h2>
-        <form method="post">
+        <form method="post" id="step1">
           {% csrf_token %}
-          <div class="form-group" disabled>
+          <div class="form-group">
             {{ message_form.product.label_tag }}<br>
             {{ message_form.product|add_class:"form-control" }}<br>
           </div>
@@ -24,38 +24,38 @@
           </div>
         </form>
       </div>
-    </div>
-    <div class="step">
-      <h2>Select Problems</h2>
-      <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          {{ message_form.problem.label_tag }}<br>
-          <div class="checkbox-group">
-            {{ message_form.problem }}
+      <div class="step">
+        <h2>Select Problems</h2>
+        <form method="post" id="step2">
+          {% csrf_token %}
+          <div class="form-group">
+            {{ message_form.problem.label_tag }}<br>
+            <div class="checkbox-group">
+              {{ message_form.problem }}
+            </div>
           </div>
-        </div>
-        <div class="buttons">
-          <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
-          <button type="button" class="btn btn-primary btn-next" onclick="nextPrev(1)">Next</button>
-        </div>
-      </form>
-    </div>
-    <div class="step">
-      <h2>Select Unique Selling Points</h2>
-      <form method="post" id="finalStep">
-        {% csrf_token %}
-        <div class="form-group">
-          {{ message_form.usp.label_tag }}<br>
-          <div class="checkbox-group">
-            {{ message_form.usp }}
+          <div class="buttons">
+            <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
+            <button type="button" class="btn btn-primary btn-next" onclick="nextPrev(1)">Next</button>
           </div>
-        </div>
-        <div class="buttons">
-          <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
-          <button type="submit" class="btn btn-primary btn-next">Submit</button>
-        </div>
-      </form>
+        </form>
+      </div>
+      <div class="step">
+        <h2>Select Unique Selling Points</h2>
+        <form method="post" id="finalStep">
+          {% csrf_token %}
+          <div class="form-group">
+            {{ message_form.usp.label_tag }}<br>
+            <div class="checkbox-group">
+              {{ message_form.usp }}
+            </div>
+          </div>
+          <div class="buttons">
+            <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
+            <button type="submit" class="btn btn-primary btn-next">Submit</button>
+          </div>
+        </form>
+      </div>
     </div>
     <div class="step">
       <h2>Generated Messages</h2>
@@ -88,10 +88,23 @@
       event.preventDefault();
       const nextBtn = steps[currentStep].querySelector(".btn-next");
       nextBtn.disabled = true;
-      nextBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+      nextBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
 
-      const formData = new FormData(document.getElementById("finalStep"));
-      console.log(`I found the form data: ${formData.get("usp")}`);
+      // Merge data from all steps
+      const formData = new FormData();
+      const step1Data = new FormData(document.getElementById("step1"));
+      const step2Data = new FormData(document.getElementById("step2"));
+      const finalStepData = new FormData(document.getElementById("finalStep"));
+
+      for (let [key, value] of step1Data.entries()) {
+        formData.append(key, value);
+      }
+      for (let [key, value] of step2Data.entries()) {
+        formData.append(key, value);
+      }
+      for (let [key, value] of finalStepData.entries()) {
+        formData.append(key, value);
+      }
 
       fetch("{% url 'generate_messages' %}", {
         method: "POST",
@@ -100,7 +113,12 @@
           "X-CSRFToken": "{{ csrf_token }}"
         }
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
         nextBtn.disabled = false;
         nextBtn.innerHTML = "Submit";
@@ -111,6 +129,12 @@
         } else {
           alert("Failed to generate messages. Please try again.");
         }
+      })
+      .catch(error => {
+        nextBtn.disabled = false;
+        nextBtn.innerHTML = "Submit";
+        console.error('Error:', error);
+        alert("An error occurred. Please try again.");
       });
     });
   </script>
