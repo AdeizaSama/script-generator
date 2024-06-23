@@ -1,4 +1,5 @@
-def get_messaging_prompt(product_info, audience_info, problems_info, usp_info, example_messages):
+def get_messaging_prompt(product_info, audience_info, problems_info, usp_info, additional_context, example_messages):
+    additional_context_str = f"— Additional Context — \n{additional_context}" if additional_context else ""
     return f"""
     TASK
     
@@ -28,8 +29,13 @@ def get_messaging_prompt(product_info, audience_info, problems_info, usp_info, e
     {example_messages}
     —
     
+    {additional_context_str}
+    
     RULES
     - The messaging must be phrased towards the target audience.
+    - The messaging should use the examples as a guide to what kind of output we expect, and not just be a copy of them.
+    - The messaging should be focused primarily on the problems we solve and the key USPs mentioned above. If they are N/A, then use your discretion.
+    {f"- The additional context should be treated as an addition to the task. Make sure the script is relevant to the style, theme or information provided in the additional context." if additional_context else ""}
     
     Now please produce your 10 best messages.
     """

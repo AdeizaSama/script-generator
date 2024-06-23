@@ -7,7 +7,7 @@
   <div class="form-container mt-5">
     <div id="sliderForm">
       <div class="step active">
-        <h2>Core Message Creation</h2>
+        <h2>Select the product and target audience</h2>
         <form method="post" id="step1">
           {% csrf_token %}
           <div class="form-group">
@@ -25,11 +25,10 @@
         </form>
       </div>
       <div class="step">
-        <h2>Select Problems</h2>
+        <h2>What problem(s) should the ad focus on?</h2>
         <form method="post" id="step2">
           {% csrf_token %}
           <div class="form-group">
-            {{ message_form.problem.label_tag }}<br>
             <div class="checkbox-group">
               {{ message_form.problem }}
             </div>
@@ -41,14 +40,26 @@
         </form>
       </div>
       <div class="step">
-        <h2>Select Unique Selling Points</h2>
-        <form method="post" id="finalStep">
+        <h2>What Unique Selling Proposition(s) should the ad focus on?</h2>
+        <form method="post" id="step3">
           {% csrf_token %}
           <div class="form-group">
-            {{ message_form.usp.label_tag }}<br>
             <div class="checkbox-group">
               {{ message_form.usp }}
             </div>
+          </div>
+          <div class="buttons">
+            <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
+            <button type="button" class="btn btn-primary btn-next" onclick="nextPrev(1)">Next</button>
+          </div>
+        </form>
+      </div>
+      <div class="step">
+        <h2>Would you like to add any additional context (e.g. style, theme, or a trend)?</h2>
+        <form method="post" id="finalStep">
+          {% csrf_token %}
+          <div class="form-group">
+            {{ message_form.additional_context|add_class:"form-control" }}<br>
           </div>
           <div class="buttons">
             <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
@@ -88,18 +99,22 @@
       event.preventDefault();
       const nextBtn = steps[currentStep].querySelector(".btn-next");
       nextBtn.disabled = true;
-      nextBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+      nextBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
       // Merge data from all steps
       const formData = new FormData();
       const step1Data = new FormData(document.getElementById("step1"));
       const step2Data = new FormData(document.getElementById("step2"));
+      const step3Data = new FormData(document.getElementById("step3"));
       const finalStepData = new FormData(document.getElementById("finalStep"));
 
       for (let [key, value] of step1Data.entries()) {
         formData.append(key, value);
       }
       for (let [key, value] of step2Data.entries()) {
+        formData.append(key, value);
+      }
+      for (let [key, value] of step3Data.entries()) {
         formData.append(key, value);
       }
       for (let [key, value] of finalStepData.entries()) {
@@ -124,7 +139,7 @@
         nextBtn.innerHTML = "Submit";
 
         if (data.messages) {
-          document.getElementById("generatedMessages").value = data.messages.join("\n\n--");
+          document.getElementById("generatedMessages").value = "--" + data.messages.join("\n\n--");
           showStep(1);
         } else {
           alert("Failed to generate messages. Please try again.");

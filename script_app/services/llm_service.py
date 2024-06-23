@@ -11,12 +11,12 @@ logger = logging.getLogger(__name__)
 client = anthropic.Anthropic(api_key=os.getenv('CLAUDE_API_KEY'))
 
 
-def get_prompt_inputs(product, audience, problems, usps, examples_focus):
+def get_prompt_inputs(product, audience, problems, usps):
     product_info = f"TeachTap is an educational mobile app that uses GenAI to bring historical characters back to life as the teachers, in the style of Tiktok. It is designed to help high school students get top grades in their upcoming exams by providing a fun, motivating and efficient way of learning."
     audience_info = AUDIENCE_INFO[audience]
-    problems_info = "\n\n--".join([PROBLEMS_INFO[problem]['description'] for problem in problems])
-    usp_info = "\n\n--".join([USP_INFO[usp]['description'] for usp in usps])
-    example_messages = "\n\n--".join(
+    problems_info = "--" + "\n\n--".join([PROBLEMS_INFO[problem]['description'] for problem in problems]) if problems else "N/A"
+    usp_info = "--" + "\n\n--".join([USP_INFO[usp]['description'] for usp in usps]) if usps else "N/A"
+    example_messages = "--" + "\n\n--".join(
         [message['description'] for message in sample(
             [msg for msg in EXAMPLE_MESSAGES if msg['target_audience'] == audience], 3
         )]
@@ -47,9 +47,9 @@ def make_llm_request(prompt, tools, max_tokens=1024):
         return None
 
 
-def generate_messages_service(product, audience, problems, usps, examples_focus):
-    product_info, audience_info, problems_info, usp_info, example_messages = get_prompt_inputs(product, audience, problems, usps, examples_focus)
-    prompt = get_messaging_prompt(product_info, audience_info, problems_info, usp_info, example_messages)
+def generate_messages_service(product, audience, problems, usps, additional_context):
+    product_info, audience_info, problems_info, usp_info, example_messages = get_prompt_inputs(product, audience, problems, usps)
+    prompt = get_messaging_prompt(product_info, audience_info, problems_info, usp_info, additional_context, example_messages)
     # logger.info(f"Prompt: {prompt}")
     tools = [
         {

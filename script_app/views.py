@@ -26,14 +26,10 @@ def generate_messages_view(request):
             audience = message_form.cleaned_data['audience']
             problems = message_form.cleaned_data['problem']
             usps = message_form.cleaned_data['usp']
-
-            logger.info(f"Product: {product}")
-            logger.info(f"Audience: {audience}")
-            logger.info(f"Problems: {problems}")
-            logger.info(f"USPs: {usps}")
+            additional_context = message_form.cleaned_data['additional_context']
 
             # Generate messages
-            messages = generate_messages_service(product, audience, problems, usps, examples_focus=None)
+            messages = generate_messages_service(product, audience, problems, usps, additional_context)
             return JsonResponse({"messages": messages})
         else:
             return JsonResponse({"error": "Invalid form data"}, status=400)

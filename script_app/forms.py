@@ -23,6 +23,11 @@ class MessageForm(forms.Form):
     )
     usp = forms.MultipleChoiceField(
         choices=USP_CHOICES,
-        label='Unique Selling Point',
+        label='Unique Selling Proposition',
         widget=CheckboxSelectMultiple
+    )
+    additional_context = forms.CharField(
+        label='Additional Context',
+        required=False,
+        widget=forms.Textarea
     )
