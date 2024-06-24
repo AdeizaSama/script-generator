@@ -56,21 +56,75 @@
       </div>
       <div class="step">
         <h2>Would you like to add any additional context (e.g. style, theme, or a trend)?</h2>
-        <form method="post" id="finalStep">
+        <form method="post" id="step4">
           {% csrf_token %}
           <div class="form-group">
             {{ message_form.additional_context|add_class:"form-control" }}<br>
           </div>
           <div class="buttons">
             <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
-            <button type="submit" class="btn btn-primary btn-next">Submit</button>
+            <button type="submit" class="btn btn-primary btn-next">Generate</button>
           </div>
         </form>
       </div>
     </div>
     <div class="step">
-      <h2>Generated Messages</h2>
-      <textarea id="generatedMessages" class="form-control" readonly rows="10"></textarea>
+      <h2>Which message(s) should be used to generate the script?</h2>
+      <form method="post" id="step5">
+        {% csrf_token %}
+        <div class="form-group">
+          <div id="messagesList" class="form-control" style="height: 500px; overflow-y: scroll;">
+            <!-- Messages will be populated here -->
+          </div>
+        </div>
+        <div class="buttons">
+          <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
+          <button type="button" class="btn btn-primary btn-next" onclick="nextPrev(1)">Next</button>
+        </div>
+      </form>
+    </div>
+    <div class="step">
+      <form method="post" id="step6">
+        {% csrf_token %}
+        <h2>How long should the script be?</h2>
+        <div class="form-group">
+          {{ script_form.script_length|add_class:"form-control" }}<br>
+        </div>
+        <h2>What is the call-to-action?</h2>
+        <div class="form-group">
+          {{ script_form.call_to_action|add_class:"form-control" }}<br>
+        </div>
+        <div class="buttons">
+          <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
+          <button type="button" class="btn btn-primary btn-next" onclick="nextPrev(1)">Next</button>
+        </div>
+      </form>
+    </div>
+    <div class="step">
+      <h2>Would you like to add any additional context or instructions(e.g. style, theme, or a trend)?</h2>
+      <form method="post" id="step7">
+        {% csrf_token %}
+        <div class="form-group">
+          {{ script_form.additional_context|add_class:"form-control" }}<br>
+        </div>
+        <div class="buttons">
+          <button type="button" class="btn btn-primary btn-back" onclick="nextPrev(-1)">Back</button>
+          <button type="submit" class="btn btn-primary btn-next">Generate</button>
+        </div>
+      </form>
+    </div>
+    <div class="step">
+      <h2>Generated Script</h2>
+      <form method="post" id="step8">
+        {% csrf_token %}
+        <div class="form-group">
+          <textarea id="generatedScript" class="form-control" readonly style="height: 500px; overflow-y: scroll;"></textarea><br>
+        </div>
+        <div class="buttons">
+          <button type="button" class="btn btn-primary btn-back" onclick="location.reload()">Restart</button>
+          <button type="submit" class="btn btn-primary btn-next">Re-Generate</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -95,18 +149,15 @@
       showStep(n);
     }
 
-    document.getElementById("finalStep").addEventListener("submit", function(event) {
-      event.preventDefault();
-      const nextBtn = steps[currentStep].querySelector(".btn-next");
-      nextBtn.disabled = true;
-      nextBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-
-      // Merge data from all steps
+    function collectFormData() {
       const formData = new FormData();
       const step1Data = new FormData(document.getElementById("step1"));
       const step2Data = new FormData(document.getElementById("step2"));
       const step3Data = new FormData(document.getElementById("step3"));
-      const finalStepData = new FormData(document.getElementById("finalStep"));
+      const step4Data = new FormData(document.getElementById("step4"));
+      const step5Data = new FormData(document.getElementById("step5"));
+      const step6Data = new FormData(document.getElementById("step6"));
+      const step7Data = new FormData(document.getElementById("step7"));
 
       for (let [key, value] of step1Data.entries()) {
         formData.append(key, value);
@@ -117,9 +168,29 @@
       for (let [key, value] of step3Data.entries()) {
         formData.append(key, value);
       }
-      for (let [key, value] of finalStepData.entries()) {
+      for (let [key, value] of step4Data.entries()) {
         formData.append(key, value);
       }
+      for (let [key, value] of step5Data.entries()) {
+        formData.append(key, value);
+      }
+      for (let [key, value] of step6Data.entries()) {
+        formData.append(key, value);
+      }
+      for (let [key, value] of step7Data.entries()) {
+        formData.append(key, value);
+      }
+
+      return formData;
+    }
+
+    document.getElementById("step4").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const nextBtn = steps[currentStep].querySelector(".btn-next");
+      nextBtn.disabled = true;
+      nextBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+      const formData = collectFormData()
 
       fetch("{% url 'generate_messages' %}", {
         method: "POST",
@@ -139,7 +210,18 @@
         nextBtn.innerHTML = "Submit";
 
         if (data.messages) {
-          document.getElementById("generatedMessages").value = "--" + data.messages.join("\n\n--");
+          const messagesList = document.getElementById("messagesList");
+          messagesList.innerHTML = "";
+          data.messages.forEach((message, index) => {
+            const messageItem = document.createElement("div");
+            messageItem.className = "message-item";
+            messageItem.style.display = "inline-flex"
+            messageItem.innerHTML = `
+              <input type="checkbox" id="message${index}" name="selected_messages" value="${message}">
+              <label for="message${index}" style="margin-left: 10px">${message}</label>
+            `;
+            messagesList.appendChild(messageItem);
+          });
           showStep(1);
         } else {
           alert("Failed to generate messages. Please try again.");
@@ -148,6 +230,57 @@
       .catch(error => {
         nextBtn.disabled = false;
         nextBtn.innerHTML = "Submit";
+        console.error('Error:', error);
+        alert("An error occurred. Please try again.");
+      });
+    });
+
+    document.getElementById("step7").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const nextBtn = steps[currentStep].querySelector(".btn-next");
+      nextBtn.disabled = true;
+      nextBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+      const formData = collectFormData();
+
+      // Get selected messages
+      const messageCheckboxes = document.querySelectorAll("#messagesList input[type='checkbox']");
+      let selectedMessages = [];
+      messageCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          selectedMessages.push(checkbox.value);
+        }
+      });
+
+      formData.append('selected_messages', JSON.stringify(selectedMessages));
+
+      fetch("{% url 'generate_script' %}", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}"
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        nextBtn.disabled = false;
+        nextBtn.innerHTML = "Submit";
+
+        if (data.script) {
+          document.getElementById("generatedScript").value = data.script;
+          showStep(1);
+        } else {
+          alert("Failed to generate script. Please try again.");
+        }
+      })
+      .catch(error => {
+        nextBtn.disabled = false;
+        nextBtn.innerHTML = "Generate";
         console.error('Error:', error);
         alert("An error occurred. Please try again.");
       });

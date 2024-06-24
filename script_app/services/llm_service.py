@@ -5,7 +5,7 @@ import anthropic
 import os
 from random import sample
 from script_app.model.teachtap_core_inputs import AUDIENCE_INFO, PROBLEMS_INFO, USP_INFO, EXAMPLE_MESSAGES
-from script_app.model.prompts import get_messaging_prompt
+from script_app.model.prompts import get_messaging_prompt, get_script_prompt
 
 logger = logging.getLogger(__name__)
 client = anthropic.Anthropic(api_key=os.getenv('CLAUDE_API_KEY'))
@@ -25,6 +25,7 @@ def get_prompt_inputs(product, audience, problems, usps):
 
 
 def make_llm_request(prompt, tools, max_tokens=1024):
+    logger.info(f"Prompt: {prompt}")
     response = client.messages.create(
         model="claude-3-5-sonnet-20240620",
         messages=[{"role": "user", "content": prompt}],
@@ -74,3 +75,27 @@ def generate_messages_service(product, audience, problems, usps, additional_cont
     completion = make_llm_request(prompt, tools)
     messages = completion.input['messages']
     return messages if messages else ["Failed to generate messages. Please try again."]
+
+
+def generate_script_service(selected_messages, audience, script_length, call_to_action, additional_context):
+    tools = [
+        {
+            "name": "generate_script",
+            "description": "Generate a script for an ad.",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "script": {
+                        "type": "string",
+                        "description": "generated ad script"
+                    }
+                },
+                "required": ["script"]
+            }
+        }
+    ]
+
+    prompt = get_script_prompt(selected_messages, audience, script_length, call_to_action, additional_context)
+    completion = make_llm_request(prompt, tools)
+    script = completion.input['script']
+    return script if script else "Failed to generate script. Please try again."
