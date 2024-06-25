@@ -101,7 +101,7 @@
       </form>
     </div>
     <div class="step">
-      <h2>Would you like to add any additional context or instructions(e.g. style, theme, or a trend)?</h2>
+      <h2>Would you like to add any additional context or instructions (e.g. style, theme, or a trend)?</h2>
       <form method="post" id="step7">
         {% csrf_token %}
         <div class="form-group">
@@ -114,11 +114,15 @@
       </form>
     </div>
     <div class="step">
-      <h2>Generated Script</h2>
       <form method="post" id="step8">
         {% csrf_token %}
+        <h2>Generated Script</h2>
         <div class="form-group">
-          <textarea id="generatedScript" class="form-control" readonly style="height: 500px; overflow-y: scroll;"></textarea><br>
+          <textarea id="generatedScript" class="form-control" readonly style="min-height: 300px; overflow-y: scroll;"></textarea><br>
+        </div>
+        <h2>Do you have notes or feedback?</h2>
+        <div class="form-group">
+          {{ chat_form.message|add_class:"form-control" }}<br>
         </div>
         <div class="buttons">
           <button type="button" class="btn btn-primary btn-back" onclick="location.reload()">Restart</button>
@@ -130,6 +134,7 @@
 
   <script>
     let currentStep = 0;
+    let chatHistory = [];
     const steps = document.querySelectorAll(".step");
 
     function showStep(n) {
@@ -151,37 +156,20 @@
 
     function collectFormData() {
       const formData = new FormData();
-      const step1Data = new FormData(document.getElementById("step1"));
-      const step2Data = new FormData(document.getElementById("step2"));
-      const step3Data = new FormData(document.getElementById("step3"));
-      const step4Data = new FormData(document.getElementById("step4"));
-      const step5Data = new FormData(document.getElementById("step5"));
-      const step6Data = new FormData(document.getElementById("step6"));
-      const step7Data = new FormData(document.getElementById("step7"));
+      const formIds = ["step1", "step2", "step3", "step4", "step5", "step6", "step7"];
 
-      for (let [key, value] of step1Data.entries()) {
-        formData.append(key, value);
-      }
-      for (let [key, value] of step2Data.entries()) {
-        formData.append(key, value);
-      }
-      for (let [key, value] of step3Data.entries()) {
-        formData.append(key, value);
-      }
-      for (let [key, value] of step4Data.entries()) {
-        formData.append(key, value);
-      }
-      for (let [key, value] of step5Data.entries()) {
-        formData.append(key, value);
-      }
-      for (let [key, value] of step6Data.entries()) {
-        formData.append(key, value);
-      }
-      for (let [key, value] of step7Data.entries()) {
-        formData.append(key, value);
-      }
+      formIds.forEach(id => {
+        const stepData = new FormData(document.getElementById(id));
+        for (let [key, value] of stepData.entries()) {
+          formData.append(key, value);
+        }
+      });
 
       return formData;
+    }
+
+    function addChatItem(role, content) {
+        chatHistory.push({ role, content });
     }
 
     document.getElementById("step4").addEventListener("submit", function(event) {
@@ -273,6 +261,8 @@
 
         if (data.script) {
           document.getElementById("generatedScript").value = data.script;
+          addChatItem("user", data.prompt);
+          addChatItem("assistant", data.script);
           showStep(1);
         } else {
           alert("Failed to generate script. Please try again.");
@@ -281,6 +271,48 @@
       .catch(error => {
         nextBtn.disabled = false;
         nextBtn.innerHTML = "Generate";
+        console.error('Error:', error);
+        alert("An error occurred. Please try again.");
+      });
+    });
+
+    document.getElementById("step8").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const nextBtn = steps[currentStep].querySelector(".btn-next");
+      nextBtn.disabled = true;
+      nextBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+      const formData = new FormData(document.getElementById("step8"));
+      formData.append('chat_history', JSON.stringify(chatHistory));
+
+      fetch("{% url 'generate_chat' %}", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}"
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        nextBtn.disabled = false;
+        nextBtn.innerHTML = "Re-Generate";
+
+        if (data.script) {
+          document.getElementById("generatedScript").value = data.script;
+          addChatItem("user", data.prompt);
+          addChatItem("assistant", data.script);
+        } else {
+          alert("Failed to generate script. Please try again.");
+        }
+      })
+      .catch(error => {
+        nextBtn.disabled = false;
+        nextBtn.innerHTML = "Re-Generate";
         console.error('Error:', error);
         alert("An error occurred. Please try again.");
       });

@@ -1,4 +1,4 @@
-# script_app/services/openai_service.py
+# script_app/services/llm_service.py
 import json
 import logging
 import anthropic
@@ -25,7 +25,7 @@ def get_prompt_inputs(product, audience, problems, usps):
 
 
 def make_llm_request(prompt, tools, max_tokens=1024):
-    logger.info(f"Prompt: {prompt}")
+    logger.info(f"Prompt:\n{prompt}")
     response = client.messages.create(
         model="claude-3-5-sonnet-20240620",
         messages=[{"role": "user", "content": prompt}],
@@ -98,4 +98,31 @@ def generate_script_service(selected_messages, audience, script_length, call_to_
     prompt = get_script_prompt(selected_messages, audience, script_length, call_to_action, additional_context)
     completion = make_llm_request(prompt, tools)
     script = completion.input['script']
-    return script if script else "Failed to generate script. Please try again."
+    if script:
+        return script, prompt
+    else:
+        return "Failed to generate script. Please try again.", prompt
+
+
+def refine_script_service(chat_history, message):
+    tools = [
+        {
+            "name": "generate_script",
+            "description": "Generate a script for an ad.",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "script": {
+                        "type": "string",
+                        "description": "generated ad script"
+                    }
+                },
+                "required": ["script"]
+            }
+        }
+    ]
+    chat_history.append({"role": "user", "content": message})
+    prompt = json.dumps(chat_history)
+    completion = make_llm_request(prompt, tools)
+    script = completion.input['script']
+    return script if script else "Failed to generate chat response. Please try again."

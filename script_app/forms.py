@@ -49,3 +49,14 @@ class ScriptForm(forms.Form):
         required=False,
         widget=forms.Textarea
     )
+
+
+class ChatForm(forms.Form):
+    message = forms.CharField(
+        label='Message',
+        widget=forms.Textarea(attrs={'class': 'chat-message'})
+    )
+    chat_history = forms.CharField(
+        label='Chat History',
+        widget=forms.HiddenInput
+    )
