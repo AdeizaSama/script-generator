@@ -114,7 +114,7 @@ def refine_script_service(chat_history, message):
                 "properties": {
                     "script": {
                         "type": "string",
-                        "description": "generated ad script"
+                        "description": "The fully generated ad script with concept and scene descriptions"
                     }
                 },
                 "required": ["script"]

@@ -34,7 +34,7 @@ def get_messaging_prompt(product_info, audience_info, problems_info, usp_info, a
     RULES
     - The messaging must be phrased towards the target audience.
     - The messaging should use the examples as a guide to what kind of output we expect, and not just be a copy of them.
-    - The messaging should be focused primarily on the problems we solve and the key USPs mentioned above. If they are N/A, then use your discretion.
+    - It is very IMPORTANT that the messages you generate are focused on the `Problems we solve` and the `Key USPs` provided above. Do NOT copy the `Example messages`, merely use them to understand the tone and language. If the problems and key USPs are N/A, then you can use your discretion.
     {f"- The additional context should be treated as an addition to the task. Make sure the script is relevant to the style, theme or information provided in the additional context." if additional_context else ""}
     
     Now please produce your 10 best messages.
@@ -51,8 +51,9 @@ def get_script_prompt(selected_messages, audience, script_length, call_to_action
     Task
     ---------
     1. Understand the Context, Task, Rules, and Core Inputs.
-    2. Focusing on the Core Message(s), generate an appropriate ad script of specified Script Length aimed at the Target Audience.
-    3. Generate a captivating Hook for the start of the ad, relative to the generated script, which should captivate the Target Audience’s attention in the first few words.
+    2. Focusing on the Core Message(s), ideate a concept for an ENGAGING and COMPELLING advertisement that will go on social media. Write this concept at the start of your output in a one sentence paragraph.
+    3. Next, generate an appropriate ad script and scene description of specified Script Length aimed at the Target Audience.
+    4. Generate a captivating Hook for the start of the ad, relative to the generated script, which should captivate the Target Audience’s attention in the first few words.
     
     Rules
     ---------
@@ -61,6 +62,10 @@ def get_script_prompt(selected_messages, audience, script_length, call_to_action
     3. The first five words must trigger curiosity in the target audience, making them want to watch the next part of the ad.
     4. The script must be a combination of interesting and informative.
     5. The script must end with a call to action based on the information filled.
+    6. The script must be focused on the Core Message(s), ensuring it delivers the main ideas of the messaging. The script can be worded differently if it will improve the script.
+    7. You must place relevant scene descriptions between the lines, which will be used to generate the B-roll.
+    8. The ad creator does not have access to an animator or actors and a budget, so the scene descriptions must either be descriptions of images or infographics.
+    9. Ads targeted at Students should lean into humor and quirky social media trends, while ads targeted at Parents should be more informative about the benefits to their kids.
     
     Core Message(s)
     ---------
@@ -73,33 +78,19 @@ def get_script_prompt(selected_messages, audience, script_length, call_to_action
     Call To Action: {call_to_action}
     {f"Additional Context: {additional_context}" if additional_context else ""}
     
-    Example(s)
+    Output Format
     ---------
     ```
-    SAT Tutors are EXPENSIVE!
-    At least the effective ones are.
-    That’s why TeachTap has come up with an affordable solution to get your child into the top universities.
-    By hiring elite SAT tutors to train our AI, we’ve combined the best of human expertise and artificial intelligence.
-    Our AI tutors are available to your child 24/7. Sign up for the SAT boot camp, today.
-    ```
-    ```
-    Top universities care about SAT scores.
-    But is your child ready?
-    Only about 5% of students attain high enough SAT scores to get into the top colleges.
-    But you can get ahead of the curve with TeachTap, and give your child a significant advantage in college admissions.
-    TeachTap revolutionizes SAT prep with engaging and comprehensive practice tests.
-    Our AI tutors and personalized score tracking highlight areas requiring improvement ensuring your child is on the path to success.
-    Stay ahead of the curve with TeachTap.
-    ```
-    ```
-    [A talk show setting where the host is standing with the audience - "Mastermind Moms: AP Test Edition" is displayed in a game show style font at the top]
-    Host: Mastermind Moms: AP Test Edition, where the thankless job of being a parent meets strategy.
-    Host: Let's hear 'em!
-    Mom 1: I swapped my son's TikTok app with TeachTap, and after swiping for 5 hours their AP score went up by a whole point!
-    Audience: *Gasps and cheers*
-    Host: (sing-song) Amaaaaziiiing!
-    Mom 2: I told my daughter if she was going to be on her phone all day, she had to spend at least 1 hour on TeachTap, and now... she's learning... *zoom in* on purpose!
-    Audience: *Laughs and applause*
-    CTA: It's the fastest path to an A in their class and a 5 on the AP test! Hook your kid up with TeachTap right now!
+    CONCEPT: [A one sentence paragraph describing the interesting idea and themes the ad will be focused on]
+    
+    SCRIPT:
+    [Hook]
+    [Hook scene description]
+    [Line 1]
+    [Scene description 1]
+    [Line 2]
+    [Scene description 2]
+    [Line n]
+    [Scene description n]
     ```
     """

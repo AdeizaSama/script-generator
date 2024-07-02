@@ -100,7 +100,7 @@ vii. The Special Needs Advocates
 
 PROBLEMS_INFO = {
     '1': {
-        'title': 'SAT Score Importance',
+        'title': 'The SAT score is a critical factor in college admissions and scholarships.',
         'description': '''
         The SAT score is a critical factor in college admissions and scholarships.
         a. A high SAT score can significantly increase a student's chances of getting into their desired college and securing merit-based scholarships.
@@ -108,7 +108,7 @@ PROBLEMS_INFO = {
         '''
     },
     '2': {
-        'title': 'Underestimation of SAT Prep',
+        'title': 'Many students underestimate the importance of SAT prep and fail to invest enough time and resources.',
         'description': '''
         Many students underestimate the importance of SAT prep and fail to invest enough time and resources.
         a. Students often prioritize other activities, such as schoolwork and extracurriculars, over SAT prep, not realizing the long-term impact of their scores.
@@ -116,7 +116,7 @@ PROBLEMS_INFO = {
         '''
     },
     '3': {
-        'title': 'Inadequate SAT Prep Consequences',
+        'title': "Inadequate SAT preparation can limit a student's college options and financial aid prospects.",
         'description': '''
         Inadequate SAT preparation can limit a student's college options and financial aid prospects.
         a. Students who don't invest in SAT prep may not reach their full potential and may have to settle for less competitive colleges or fewer scholarship options.
@@ -124,7 +124,7 @@ PROBLEMS_INFO = {
         '''
     },
     '4': {
-        'title': 'SAT Scores Improvement Misconception',
+        'title': 'Many students and parents believe that SAT scores are fixed and cannot be significantly improved.',
         'description': '''
         Many students and parents believe that SAT scores are fixed and cannot be significantly improved.
         a. This misconception can lead to a lack of motivation and effort in SAT prep, creating a self-fulfilling prophecy of mediocre scores.
@@ -132,7 +132,7 @@ PROBLEMS_INFO = {
         '''
     },
     '5': {
-        'title': 'Achieving High SAT Scores',
+        'title': 'Achieving a high SAT score (1400+, 1500+, or even 1600) is possible for any student who puts in the time and effort.',
         'description': '''
         Achieving a high SAT score (1400+, 1500+, or even 1600) is possible for any student who puts in the time and effort.
         a. Success on the SAT is not just about innate intelligence or test-taking ability; it's about dedication, strategic preparation, and consistent practice.
@@ -140,7 +140,7 @@ PROBLEMS_INFO = {
         '''
     },
     '6': {
-        'title': 'Investing in SAT Prep',
+        'title': 'Investing in effective SAT prep is a smart decision with long-term benefits.',
         'description': '''
         Investing in effective SAT prep is a smart decision with long-term benefits.
         a. Higher SAT scores can open doors to more selective colleges, generous scholarships, and life-changing opportunities.
